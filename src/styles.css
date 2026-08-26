@@ -44,3 +44,13 @@ body{color:var(--text)}
 .refresh-button:hover,.map-locate:hover,.theme-button:hover,.prices-button:hover,.location-button:hover,.modal-close:hover{background:var(--surface)!important;color:var(--text)!important;border-color:var(--faint)!important}
 @media(max-width:700px){.header-actions .location-button{color:transparent!important}.header-actions .location-button svg{color:var(--text)!important}}
 @media(max-width:700px){.update-indicator{display:none}}
+
+@media(max-width:700px){
+  .mobile-tabs{height:56px;padding:5px;gap:5px;border-color:var(--border2);background:var(--surface);border-radius:11px}
+  .mobile-tabs button{min-height:44px;border:1px solid transparent;border-radius:8px;color:var(--sub);background:transparent;font-weight:700;transition:background-color .15s,border-color .15s,color .15s,transform .1s}
+  .mobile-tabs button svg{color:var(--faint)}
+  .mobile-tabs button:hover{color:var(--text);background:var(--muted)}
+  .mobile-tabs button.active{color:var(--text);background:var(--muted);border-color:var(--border2);box-shadow:inset 0 1px rgb(255 255 255 / 5%)}
+  .mobile-tabs button.active svg{color:var(--text)}
+  .mobile-tabs button:active{transform:scale(.98)}
+}
