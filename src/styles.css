@@ -36,9 +36,11 @@ body{color:var(--text)}
 @media(max-width:700px){.header-actions .location-button{color:transparent!important}.header-actions .location-button svg{color:var(--text)}}
 
 /* Neutral modal and controls */
+.update-indicator{display:flex;align-items:center;gap:7px;color:var(--sub);font-size:11px}.update-indicator strong{color:var(--text);font-weight:700}.update-indicator i{width:1px;height:13px;background:var(--border2)}
 .modal-backdrop{background:rgb(0 0 0 / 62%)}
 .modal-icon{color:var(--text);background:var(--muted);border:1px solid var(--border2)}
 .eyebrow{color:var(--sub)}
 .refresh-button,.map-locate,.theme-button,.prices-button,.location-button,.modal-close{background:var(--muted)!important;color:var(--text)!important;border-color:var(--border2)!important}
 .refresh-button:hover,.map-locate:hover,.theme-button:hover,.prices-button:hover,.location-button:hover,.modal-close:hover{background:var(--surface)!important;color:var(--text)!important;border-color:var(--faint)!important}
 @media(max-width:700px){.header-actions .location-button{color:transparent!important}.header-actions .location-button svg{color:var(--text)!important}}
+@media(max-width:700px){.update-indicator{display:none}}

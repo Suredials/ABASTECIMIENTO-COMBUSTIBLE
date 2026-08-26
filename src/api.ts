@@ -4,7 +4,7 @@ const BASE_URL = '/api/anh'
 const PUBLIC_APP_KEY = '9ADE86E5A083423EBE50C051F4DB9778'
 
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`, { signal, cache: 'no-store' })
+  const response = await fetch(`${BASE_URL}${path}`, { signal })
   if (!response.ok) throw new Error(`El servicio respondió ${response.status}`)
   const payload = (await response.json()) as ApiEnvelope<T>
   if (payload.decCodigo !== 1 || payload.oResultado == null) {
