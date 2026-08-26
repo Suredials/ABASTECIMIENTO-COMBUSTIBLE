@@ -21,8 +21,8 @@ body{color:var(--text)}
 .panel-heading h2,.station-card h3,.empty-state h3,.report-modal h2,.prices-modal h2{color:var(--text)}
 .leaflet-control-zoom a,.leaflet-control-attribution{background:var(--surface)!important;color:var(--text)!important}
 .leaflet-control-attribution a{color:var(--blue)!important}
-[data-theme=light] .leaflet-tile-pane{filter:brightness(.89) saturate(.78) contrast(.96)}
-[data-theme=dark] .leaflet-tile-pane{filter:brightness(.86) saturate(.75)}
+[data-theme=light] .leaflet-tile-pane{filter:grayscale(.42) saturate(.55) brightness(.88) contrast(.94)}
+[data-theme=dark] .leaflet-tile-pane{filter:invert(.9) hue-rotate(180deg) grayscale(.48) saturate(.5) brightness(.62) contrast(1.12)}
 [data-theme=dark] .map{background:var(--bg)}
 [data-theme=dark] .leaflet-popup-content-wrapper,[data-theme=dark] .leaflet-popup-tip{background:var(--surface);color:var(--text)}
 [data-theme=dark] .leaflet-bar{border-color:var(--border)!important}
@@ -125,3 +125,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,[role=button]:focu
 .station-marker span{position:static;width:5px;height:5px;border-radius:50%;background:var(--surface)}
 .station-marker.selected{transform:scale(1.22);box-shadow:0 0 0 3px var(--border2),0 3px 8px rgb(0 0 0 / 36%)}
 .station-marker.selected::before{content:none}
+
+/* Theme-matched semantic colors */
+:root{--green:#4f725f;--green-soft:#cbd7ce;--amber:#816a49;--amber-soft:#ddd3c2;--red:#8c5753;--red-soft:#decac8}
+[data-theme=dark]{--green:#7f9d8b;--green-soft:#29352e;--amber:#b09a74;--amber-soft:#383229;--red:#b77e79;--red-soft:#3b2c2b}
