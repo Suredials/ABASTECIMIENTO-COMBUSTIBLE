@@ -81,7 +81,18 @@ function StationMap({ theme, stations, selectedId, department, city, focusStatio
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left')
     map.addControl(new maplibregl.AttributionControl({ compact: true }))
     mapRef.current = map
-    return () => { mapRef.current = undefined; map.remove() }
+    const resizeObserver = new ResizeObserver(() => map.resize())
+    resizeObserver.observe(containerRef.current)
+    const resizeMap = () => map.resize()
+    window.addEventListener('orientationchange', resizeMap)
+    const firstResize = window.requestAnimationFrame(() => window.requestAnimationFrame(resizeMap))
+    return () => {
+      window.cancelAnimationFrame(firstResize)
+      window.removeEventListener('orientationchange', resizeMap)
+      resizeObserver.disconnect()
+      mapRef.current = undefined
+      map.remove()
+    }
   }, [])
 
   useEffect(() => {
