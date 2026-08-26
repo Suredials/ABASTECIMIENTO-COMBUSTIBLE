@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import * as maplibregl from 'maplibre-gl'
+import { createRoot, type Root } from 'react-dom/client'
 import { AlertCircle, BadgeDollarSign, ChevronDown, Clock3, Crosshair, Fuel, Info, ListFilter, LocateFixed, Map as MapIcon, MapPin, Moon, Navigation, RefreshCw, Search, Sun, X } from 'lucide-react'
 import { getDepartments, getProducts, getStations } from './api'
 import type { Department, Product, Station } from './types'
@@ -47,44 +47,86 @@ const CITIES: CityOption[] = [
 ]
 
 const statusLabel: Record<string, string> = { alto: 'Saldo alto', medio: 'Saldo medio', bajo: 'Saldo bajo' }
-function markerIcon(status: string, selected: boolean) {
-  return L.divIcon({
-    className: 'station-marker-shell',
-    html: `<div class="station-marker ${status} ${selected ? 'selected' : ''}"><span></span></div>`,
-    iconSize: [22, 22], iconAnchor: [11, 11], popupAnchor: [0, -14],
-  })
+function StationPopup({ station }: { station: Station }) {
+  return <div className="map-popup">
+    <span className={`status ${station.saldo_estado}`}><i/>{statusLabel[station.saldo_estado] || station.saldo_estado}</span>
+    <h3>{station.nombre}</h3>
+    <p><MapPin size={13}/>{station.direccion || 'Dirección no disponible'}</p>
+    <div className="popup-facts">
+      <span className={station.con_venta ? 'positive' : ''}><Fuel size={14}/>{station.con_venta ? `Con venta · ${relativeTime(station.fecha_ultima_venta)}` : `Última venta ${relativeTime(station.fecha_ultima_venta)}`}</span>
+      {station.despacho_en_curso && <span className="dispatch"><RefreshCw size={13}/>Reposición en curso; puede tardar en habilitarse</span>}
+    </div>
+  </div>
 }
 
-function FlyTo({ station, position }: { station?: Station; position?: [number, number] }) {
-  const map = useMap()
-  useEffect(() => {
-    if (station) map.flyTo([station.lat, station.lng], 16, { duration: 0.8 })
-  }, [station, map])
-  useEffect(() => {
-    if (position) map.flyTo(position, 14, { duration: 0.8 })
-  }, [position, map])
-  return null
-}
+function StationMap({ theme, stations, selectedId, department, city, focusStation, position, onSelect }: {
+  theme: 'light' | 'dark'; stations: Station[]; selectedId?: number; department?: Department; city?: CityOption; focusStation?: Station; position?: [number, number]; onSelect: (id: number) => void
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<maplibregl.Map>()
+  const appliedTheme = useRef(theme)
+  const markerRefs = useRef<maplibregl.Marker[]>([])
+  const popupRoots = useRef<Root[]>([])
+  const positionMarker = useRef<maplibregl.Marker>()
 
-function MapViewport({ department, city }: { department?: Department; city?: CityOption }) {
-  const map = useMap()
   useEffect(() => {
-    const container = map.getContainer()
-    const observer = new ResizeObserver(() => map.invalidateSize({ pan: false }))
-    observer.observe(container)
-    const firstPaint = window.setTimeout(() => map.invalidateSize({ pan: false }), 100)
-    return () => { observer.disconnect(); window.clearTimeout(firstPaint) }
-  }, [map])
+    if (!containerRef.current) return
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: theme === 'dark' ? 'https://tiles.openfreemap.org/styles/dark' : 'https://tiles.openfreemap.org/styles/positron',
+      center: [BOLIVIA_CENTER[1], BOLIVIA_CENTER[0]], zoom: 6, minZoom: 5,
+      maxBounds: [[BOLIVIA_BOUNDS[0][1], BOLIVIA_BOUNDS[0][0]], [BOLIVIA_BOUNDS[1][1], BOLIVIA_BOUNDS[1][0]]],
+      attributionControl: false,
+    })
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left')
+    map.addControl(new maplibregl.AttributionControl({ compact: true }))
+    mapRef.current = map
+    return () => { mapRef.current = undefined; map.remove() }
+  }, [])
+
   useEffect(() => {
-    if (department) {
-      map.stop()
-      map.setView(DEPARTMENT_CENTERS[department.id] || [department.lat, department.lng], 12, { animate: false })
+    if (appliedTheme.current === theme) return
+    appliedTheme.current = theme
+    mapRef.current?.setStyle(theme === 'dark' ? 'https://tiles.openfreemap.org/styles/dark' : 'https://tiles.openfreemap.org/styles/positron')
+  }, [theme])
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    if (city) map.jumpTo({ center: [city.lng, city.lat], zoom: 13 })
+    else if (department) {
+      const center = DEPARTMENT_CENTERS[department.id] || [department.lat, department.lng]
+      map.jumpTo({ center: [center[1], center[0]], zoom: 12 })
     }
-  }, [department, map])
+  }, [department, city])
+  useEffect(() => { if (focusStation) mapRef.current?.flyTo({ center: [focusStation.lng, focusStation.lat], zoom: 16, duration: 800 }) }, [focusStation])
   useEffect(() => {
-    if (city) { map.stop(); map.setView([city.lat, city.lng], 13, { animate:false }) }
-  }, [city, map])
-  return null
+    positionMarker.current?.remove()
+    if (!position || !mapRef.current) return
+    const element = document.createElement('div'); element.className = 'user-location-marker'
+    positionMarker.current = new maplibregl.Marker({ element }).setLngLat([position[1], position[0]]).addTo(mapRef.current)
+    mapRef.current.flyTo({ center: [position[1], position[0]], zoom: 14, duration: 800 })
+  }, [position])
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    markerRefs.current.forEach((marker) => marker.remove()); markerRefs.current = []
+    popupRoots.current.forEach((root) => root.unmount()); popupRoots.current = []
+    stations.forEach((station) => {
+      const element = document.createElement('button')
+      element.type = 'button'; element.className = `station-marker ${station.saldo_estado}`; element.dataset.stationId = String(station.id)
+      element.setAttribute('aria-label', station.nombre); element.innerHTML = '<span></span>'
+      element.addEventListener('click', () => onSelect(station.id))
+      const popupNode = document.createElement('div'); const root = createRoot(popupNode); root.render(<StationPopup station={station}/>); popupRoots.current.push(root)
+      const popup = new maplibregl.Popup({ offset: 14, maxWidth: '290px' }).setDOMContent(popupNode)
+      markerRefs.current.push(new maplibregl.Marker({ element }).setLngLat([station.lng, station.lat]).setPopup(popup).addTo(map))
+    })
+    return () => { markerRefs.current.forEach((marker) => marker.remove()); markerRefs.current = []; popupRoots.current.forEach((root) => root.unmount()); popupRoots.current = [] }
+  }, [stations, onSelect])
+  useEffect(() => {
+    markerRefs.current.forEach((marker) => marker.getElement().classList.toggle('selected', marker.getElement().dataset.stationId === String(selectedId)))
+  }, [selectedId, stations])
+
+  return <div ref={containerRef} className="map"/>
 }
 
 type PickerOption<T extends string | number> = { value: T; label: string; detail?: string }
@@ -241,6 +283,7 @@ export default function App() {
   const activeProduct = products.find((item) => item.id === productId)
   const nextUpdate = lastUpdated ? new Date(lastUpdated.getTime() + 5 * 60_000) : undefined
   const shortTime = (date: Date) => date.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' })
+  const selectMapStation = useCallback((id: number) => { setSelectedId(id); setFocusStation(undefined) }, [])
 
   function locate() {
     if (!navigator.geolocation) return setError('Este navegador no ofrece ubicación.')
@@ -302,27 +345,7 @@ export default function App() {
           </aside>
 
           <div className={`map-panel ${view === 'map' ? 'mobile-active' : ''}`}>
-            <MapContainer center={BOLIVIA_CENTER} zoom={6} minZoom={5} maxBounds={BOLIVIA_BOUNDS} maxBoundsViscosity={1} worldCopyJump={false} className="map">
-              <TileLayer key={theme} noWrap keepBuffer={4} updateWhenIdle={false} subdomains="abcd" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' url={theme === 'dark' ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'} />
-              <MapViewport department={activeDepartment} city={activeCity}/>
-              <FlyTo station={focusStation} position={position}/>
-              {position && <CircleMarker center={position} radius={8} pathOptions={{ color: '#fff', weight: 4, fillColor: '#147d73', fillOpacity: 1 }} />}
-              {visibleStations.map((station) => {
-                return <Marker key={station.id} position={[station.lat, station.lng]} icon={markerIcon(station.saldo_estado, selectedId === station.id)} eventHandlers={{ click: () => { setSelectedId(station.id); setFocusStation(undefined) } }}>
-                  <Popup minWidth={245} maxWidth={290}>
-                    <div className="map-popup">
-                      <span className={`status ${station.saldo_estado}`}><i/>{statusLabel[station.saldo_estado] || station.saldo_estado}</span>
-                      <h3>{station.nombre}</h3>
-                      <p><MapPin size={13}/>{station.direccion || 'Dirección no disponible'}</p>
-                      <div className="popup-facts">
-                        <span className={station.con_venta ? 'positive' : ''}><Fuel size={14}/>{station.con_venta ? `Con venta · ${relativeTime(station.fecha_ultima_venta)}` : `Última venta ${relativeTime(station.fecha_ultima_venta)}`}</span>
-                        {station.despacho_en_curso && <span className="dispatch"><RefreshCw size={13}/>Reposición en curso; puede tardar en habilitarse</span>}
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              })}
-            </MapContainer>
+            <StationMap theme={theme} stations={visibleStations} selectedId={selectedId} department={activeDepartment} city={activeCity} focusStation={focusStation} position={position} onSelect={selectMapStation}/>
             <button className="map-locate" onClick={locate} aria-label="Centrar en mi ubicación"><Crosshair size={20}/></button>
             <div className="map-note"><span className="pulse"/>Datos referenciales de ANH</div>
           </div>
