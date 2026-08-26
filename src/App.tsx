@@ -180,7 +180,7 @@ export default function App() {
     loadStations()
     const polling = window.setInterval(() => {
       if (document.visibilityState === 'visible') loadStations(true)
-    }, 15 * 60_000)
+    }, 5 * 60_000)
     const refreshWhenVisible = () => {
       if (document.visibilityState === 'visible') loadStations(true)
     }
@@ -210,7 +210,7 @@ export default function App() {
   const activeCity = CITIES.find((item) => item.id === cityId)
   const departmentCities = departmentId === '' ? [] : CITIES.filter((item) => item.departmentId === departmentId)
   const activeProduct = products.find((item) => item.id === productId)
-  const nextUpdate = lastUpdated ? new Date(lastUpdated.getTime() + 15 * 60_000) : undefined
+  const nextUpdate = lastUpdated ? new Date(lastUpdated.getTime() + 5 * 60_000) : undefined
   const shortTime = (date: Date) => date.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' })
 
   function locate() {
@@ -241,7 +241,7 @@ export default function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="live-pill"><span /> Información en vivo</div>
-        <div className="update-indicator"><Clock3 size={15}/>{lastUpdated && nextUpdate ? <><span>Última <strong>{shortTime(lastUpdated)}</strong></span><i/><span>Próxima <strong>{shortTime(nextUpdate)}</strong></span></> : <span>Actualización cada 15 min</span>}</div>
+        <div className="update-indicator"><Clock3 size={15}/>{lastUpdated && nextUpdate ? <><span>Última <strong>{shortTime(lastUpdated)}</strong></span><i/><span>Próxima <strong>{shortTime(nextUpdate)}</strong></span></> : <span>Actualización cada 5 min</span>}</div>
         <div className="header-actions"><button className="theme-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'} title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>{theme === 'light' ? <Moon size={18}/> : <Sun size={18}/>}</button><button className="prices-button" onClick={() => setShowPrices(true)}><BadgeDollarSign size={18}/>Precios oficiales</button><button className="location-button" onClick={locate} disabled={locating}><LocateFixed size={18} />{locating ? 'Ubicando…' : position ? 'Ubicación activa' : 'Usar mi ubicación'}</button></div>
       </header>
 

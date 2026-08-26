@@ -2,7 +2,7 @@
 
 Mapa web para consultar la disponibilidad de combustible en estaciones de servicio de Bolivia con información pública de la ANH.
 
-Permite filtrar por departamento, ciudad y tipo de combustible, ordenar las estaciones según disponibilidad y cercanía, y actualizar los datos automáticamente cada 15 minutos.
+Permite filtrar por departamento, ciudad y tipo de combustible, ordenar las estaciones según disponibilidad y cercanía, y actualizar los datos automáticamente cada 5 minutos.
 
 ## Desarrollo
 
