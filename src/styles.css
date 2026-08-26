@@ -89,3 +89,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,[role=button]:focu
 @media(max-width:700px){
   .department-menu{max-height:min(420px,calc(100dvh - 150px));overflow-y:auto;overscroll-behavior:contain;z-index:1300}
 }
+
+/* One picker system for every filter and viewport */
+.department-trigger:disabled{opacity:.56;cursor:not-allowed;background:var(--muted)}
+.department-menu .department-menu-head{display:flex;grid-template-columns:none;align-items:center;justify-content:space-between}
+.department-menu .department-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
+.department-options button{min-height:48px}
+@media(max-width:430px){.department-menu{width:min(350px,calc(100vw - 38px))}}
+
+/* Compact map pins, status color is semantic only */
+.station-marker{--marker:var(--faint);position:relative;width:28px;height:32px;display:block;border:0;border-radius:0;background:transparent!important;box-shadow:none;transform:none}
+.station-marker::before{content:"";position:absolute;left:4px;top:2px;width:20px;height:20px;border:3px solid var(--surface);border-radius:7px 7px 7px 2px;background:var(--marker);box-shadow:0 3px 8px rgb(0 0 0 / 34%);transform:rotate(-45deg)}
+.station-marker span{position:absolute;z-index:1;left:11px;top:9px;width:6px;height:6px;border-radius:2px;background:var(--surface)}
+.station-marker.alto{--marker:var(--green)}.station-marker.medio{--marker:var(--amber)}.station-marker.bajo{--marker:var(--red)}
+.station-marker.selected{transform:translateY(-2px) scale(1.16)}
+.station-marker.selected::before{box-shadow:0 0 0 3px var(--surface),0 4px 10px rgb(0 0 0 / 38%)}
+@media(max-width:700px){.header-actions .location-button{position:relative;width:44px!important;min-width:44px;padding:0!important;overflow:hidden;font-size:0!important;text-indent:-999px;color:transparent!important}.header-actions .location-button svg{position:absolute;left:12px;text-indent:0;color:var(--text)!important}}

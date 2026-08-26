@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { AlertCircle, BadgeDollarSign, ChevronDown, Clock3, Crosshair, Fuel, Info, ListFilter, LocateFixed, Map as MapIcon, MapPin, Moon, Navigation, RefreshCw, Search, Sun, X } from 'lucide-react'
@@ -50,7 +51,7 @@ function markerIcon(status: string, selected: boolean) {
   return L.divIcon({
     className: 'station-marker-shell',
     html: `<div class="station-marker ${status} ${selected ? 'selected' : ''}"><span></span></div>`,
-    iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -14],
+    iconSize: [28, 32], iconAnchor: [14, 29], popupAnchor: [0, -28],
   })
 }
 
@@ -86,10 +87,14 @@ function MapViewport({ department, city }: { department?: Department; city?: Cit
   return null
 }
 
-function DepartmentPicker({ departments, value, onChange }: { departments: Department[]; value: number | ''; onChange: (id: number) => void }) {
+type PickerOption<T extends string | number> = { value: T; label: string; detail?: string }
+
+function OptionPicker<T extends string | number>({ options, value, onChange, placeholder, heading, icon, disabled = false }: {
+  options: PickerOption<T>[]; value: T | ''; onChange: (value: T) => void; placeholder: string; heading: string; icon: ReactNode; disabled?: boolean
+}) {
   const [open, setOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
-  const active = departments.find((item) => item.id === value)
+  const active = options.find((item) => item.value === value)
 
   useEffect(() => setOpen(false), [value])
   useEffect(() => {
@@ -108,18 +113,18 @@ function DepartmentPicker({ departments, value, onChange }: { departments: Depar
     }
   }, [open])
 
-  const chooseDepartment = (id: number) => {
+  const chooseOption = (nextValue: T) => {
     setOpen(false)
-    onChange(id)
+    onChange(nextValue)
   }
 
   return <div className="department-picker" ref={pickerRef}>
-    <button type="button" className={`department-trigger ${open ? 'open' : ''}`} onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="listbox">
-      <MapPin size={18}/><span>{active?.nombre || 'Elige un departamento'}</span><ChevronDown size={16}/>
+    <button type="button" className={`department-trigger ${open ? 'open' : ''}`} onClick={() => !disabled && setOpen(!open)} aria-expanded={open} aria-haspopup="listbox" disabled={disabled}>
+      {icon}<span>{active?.label || placeholder}</span><ChevronDown size={16}/>
     </button>
     {open && <div className="department-menu" role="listbox">
-      <div className="department-menu-head"><strong>Selecciona un departamento</strong><button type="button" className="department-menu-close" aria-label="Cerrar selector" onClick={() => setOpen(false)}><X size={17}/></button></div>
-      <div>{departments.map((item) => <button type="button" role="option" aria-selected={item.id === value} key={item.id} className={item.id === value ? 'active' : ''} onClick={() => chooseDepartment(item.id)}><span>{item.nombre}</span><small>{item.total_eess} estaciones</small></button>)}</div>
+      <div className="department-menu-head"><strong>{heading}</strong><button type="button" className="department-menu-close" aria-label="Cerrar selector" onClick={() => setOpen(false)}><X size={17}/></button></div>
+      <div className="department-options">{options.map((item) => <button type="button" role="option" aria-selected={item.value === value} key={item.value} className={item.value === value ? 'active' : ''} onClick={() => chooseOption(item.value)}><span>{item.label}</span>{item.detail && <small>{item.detail}</small>}</button>)}</div>
     </div>}
   </div>
 }
@@ -271,9 +276,9 @@ export default function App() {
 
       <main className="content">
         <section className="controls-card">
-          <label><span>Departamento</span><DepartmentPicker departments={departments} value={departmentId} onChange={(id) => { setPosition(undefined); setCityId(''); setDepartmentId(id) }}/></label>
-          <label><span>Ciudad o municipio</span><div className="select-wrap"><MapPin size={18}/><select value={cityId} disabled={departmentId === ''} onChange={(e) => setCityId(e.target.value)}><option value="">Todo el departamento</option>{departmentCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}</select><ChevronDown size={16}/></div></label>
-          <label><span>Combustible</span><div className="select-wrap"><Fuel size={18}/><select value={productId} onChange={(e) => setProductId(Number(e.target.value))}>{products.map((item) => <option key={item.id} value={item.id}>{item.producto}</option>)}</select><ChevronDown size={16}/></div></label>
+          <label><span>Departamento</span><OptionPicker options={departments.map((item) => ({ value:item.id, label:item.nombre, detail:`${item.total_eess} estaciones` }))} value={departmentId} placeholder="Elige un departamento" heading="Selecciona un departamento" icon={<MapPin size={18}/>} onChange={(id) => { setPosition(undefined); setCityId(''); setDepartmentId(id) }}/></label>
+          <label><span>Ciudad o municipio</span><OptionPicker options={[{ value:'', label:'Todo el departamento' }, ...departmentCities.map((city) => ({ value:city.id, label:city.name }))]} value={cityId} placeholder="Todo el departamento" heading="Selecciona una ciudad o municipio" icon={<MapPin size={18}/>} disabled={departmentId === ''} onChange={setCityId}/></label>
+          <label><span>Combustible</span><OptionPicker options={products.map((item) => ({ value:item.id, label:item.producto }))} value={productId} placeholder="Elige un combustible" heading="Selecciona un combustible" icon={<Fuel size={18}/>} onChange={setProductId}/></label>
           <label className="search-field"><span>Buscar estación o zona</span><div><Search size={18}/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nombre, avenida, barrio…"/>{search && <button onClick={() => setSearch('')}><X size={15}/></button>}</div></label>
           <button className="refresh-button" aria-label="Actualizar" onClick={() => loadStations()}><RefreshCw size={19} className={loading ? 'spinning' : ''}/></button>
         </section>
@@ -303,7 +308,7 @@ export default function App() {
               <FlyTo station={focusStation} position={position}/>
               {position && <CircleMarker center={position} radius={8} pathOptions={{ color: '#fff', weight: 4, fillColor: '#147d73', fillOpacity: 1 }} />}
               {visibleStations.map((station) => {
-                return <Marker key={station.id} position={[station.lat, station.lng]} icon={markerIcon(station.saldo_estado, false)} eventHandlers={{ click: () => { setSelectedId(station.id); setFocusStation(undefined) } }}>
+                return <Marker key={station.id} position={[station.lat, station.lng]} icon={markerIcon(station.saldo_estado, selectedId === station.id)} eventHandlers={{ click: () => { setSelectedId(station.id); setFocusStation(undefined) } }}>
                   <Popup minWidth={245} maxWidth={290}>
                     <div className="map-popup">
                       <span className={`status ${station.saldo_estado}`}><i/>{statusLabel[station.saldo_estado] || station.saldo_estado}</span>
@@ -326,7 +331,7 @@ export default function App() {
 
       <nav className="mobile-tabs"><button className={view === 'map' ? 'active' : ''} onClick={() => setView('map')}><MapIcon size={19}/>Mapa</button><button className={view === 'list' ? 'active' : ''} onClick={() => setView('list')}><ListFilter size={19}/>Lista ({visibleStations.length})</button></nav>
 
-      {showPrices && <div className="modal-backdrop" onMouseDown={() => setShowPrices(false)}><section className="prices-modal" onMouseDown={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setShowPrices(false)}><X/></button><div className="modal-icon"><BadgeDollarSign size={22}/></div><p className="eyebrow">Información oficial ANH</p><h2>Precios de combustibles</h2><p className="prices-period">{officialPrices[0]?.periodo?.replace(/\s+/g,' ').trim() || 'Periodo vigente'}</p><div className="price-table"><div className="price-head"><span>Producto</span><span>Nacional</span><span>Internacional</span></div>{officialPrices.map((product) => <div className="price-row" key={product.id}><strong>{product.producto}</strong><span>Bs {product.nacional.toFixed(2)}</span><span>{product.internacional ? `Bs ${product.internacional.toFixed(2)}` : '—'}</span></div>)}</div><p className="price-note"><Info size={15}/>Estos son precios de referencia. La API solo publica disponibilidad por estación para Gasolina y Gasolina Premium.</p></section></div>}
+      {showPrices && <div className="modal-backdrop" onMouseDown={() => setShowPrices(false)}><section className="prices-modal" onMouseDown={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setShowPrices(false)}><X/></button><div className="modal-icon"><BadgeDollarSign size={22}/></div><p className="eyebrow">Información oficial ANH</p><h2>Precios de combustibles</h2><p className="prices-period">{officialPrices[0]?.periodo?.replace(/\s+/g,' ').trim() || 'Periodo vigente'}</p><div className="price-table"><div className="price-head"><span>Producto</span><span>Nacional</span><span>Internacional</span></div>{officialPrices.map((product) => <div className="price-row" key={product.id}><strong>{product.producto}</strong><span>Bs {product.nacional.toFixed(2)}</span><span>{product.internacional ? `Bs ${product.internacional.toFixed(2)}` : 'No aplica'}</span></div>)}</div><p className="price-note"><Info size={15}/>Estos son precios de referencia. La API solo publica disponibilidad por estación para Gasolina y Gasolina Premium.</p></section></div>}
     </div>
   )
 }
