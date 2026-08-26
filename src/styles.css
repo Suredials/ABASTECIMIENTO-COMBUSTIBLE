@@ -54,3 +54,10 @@ body{color:var(--text)}
   .mobile-tabs button.active svg{color:var(--text)}
   .mobile-tabs button:active{transform:scale(.98)}
 }
+
+@media(max-width:430px){
+  .controls-card{position:relative;display:grid;grid-template-columns:minmax(0,1fr);padding:9px;gap:8px}
+  .controls-card label:nth-child(1),.controls-card label:nth-child(2),.controls-card label:nth-child(3),.controls-card .search-field{grid-column:1;width:100%}
+  .search-field>div{padding-right:52px}
+  .refresh-button{position:absolute;right:10px;bottom:10px;width:40px;height:38px;grid-column:auto;grid-row:auto;border-radius:7px}
+}
