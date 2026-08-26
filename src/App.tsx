@@ -51,7 +51,7 @@ function markerIcon(status: string, selected: boolean) {
   return L.divIcon({
     className: 'station-marker-shell',
     html: `<div class="station-marker ${status} ${selected ? 'selected' : ''}"><span></span></div>`,
-    iconSize: [28, 32], iconAnchor: [14, 29], popupAnchor: [0, -28],
+    iconSize: [22, 22], iconAnchor: [11, 11], popupAnchor: [0, -14],
   })
 }
 
