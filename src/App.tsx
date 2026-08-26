@@ -303,7 +303,7 @@ export default function App() {
 
           <div className={`map-panel ${view === 'map' ? 'mobile-active' : ''}`}>
             <MapContainer center={BOLIVIA_CENTER} zoom={6} minZoom={5} maxBounds={BOLIVIA_BOUNDS} maxBoundsViscosity={1} worldCopyJump={false} className="map">
-              <TileLayer key={theme} noWrap keepBuffer={4} updateWhenIdle={false} attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <TileLayer key={theme} noWrap keepBuffer={4} updateWhenIdle={false} subdomains="abcd" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' url={theme === 'dark' ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'} />
               <MapViewport department={activeDepartment} city={activeCity}/>
               <FlyTo station={focusStation} position={position}/>
               {position && <CircleMarker center={position} radius={8} pathOptions={{ color: '#fff', weight: 4, fillColor: '#147d73', fillOpacity: 1 }} />}
