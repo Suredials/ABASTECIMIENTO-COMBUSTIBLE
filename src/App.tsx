@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { AlertCircle, BadgeDollarSign, ChevronDown, Clock3, Crosshair, Fuel, Info, ListFilter, LocateFixed, Map as MapIcon, MapPin, Moon, Navigation, RefreshCw, Search, Sun, X } from 'lucide-react'
@@ -88,6 +88,7 @@ function MapViewport({ department, city }: { department?: Department; city?: Cit
 
 function DepartmentPicker({ departments, value, onChange }: { departments: Department[]; value: number | ''; onChange: (id: number) => void }) {
   const [open, setOpen] = useState(false)
+  const pickerRef = useRef<HTMLDivElement>(null)
   const active = departments.find((item) => item.id === value)
 
   useEffect(() => setOpen(false), [value])
@@ -96,8 +97,15 @@ function DepartmentPicker({ departments, value, onChange }: { departments: Depar
     const closeWithEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)
     }
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) setOpen(false)
+    }
     window.addEventListener('keydown', closeWithEscape)
-    return () => window.removeEventListener('keydown', closeWithEscape)
+    document.addEventListener('pointerdown', closeOnOutsidePress, true)
+    return () => {
+      window.removeEventListener('keydown', closeWithEscape)
+      document.removeEventListener('pointerdown', closeOnOutsidePress, true)
+    }
   }, [open])
 
   const chooseDepartment = (id: number) => {
@@ -105,14 +113,14 @@ function DepartmentPicker({ departments, value, onChange }: { departments: Depar
     onChange(id)
   }
 
-  return <div className="department-picker">
+  return <div className="department-picker" ref={pickerRef}>
     <button type="button" className={`department-trigger ${open ? 'open' : ''}`} onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="listbox">
       <MapPin size={18}/><span>{active?.nombre || 'Elige un departamento'}</span><ChevronDown size={16}/>
     </button>
-    {open && <><button type="button" className="picker-dismiss" aria-label="Cerrar selector" onPointerDown={() => setOpen(false)}/><div className="department-menu" role="listbox">
-      <strong>Selecciona un departamento</strong>
+    {open && <div className="department-menu" role="listbox">
+      <div className="department-menu-head"><strong>Selecciona un departamento</strong><button type="button" className="department-menu-close" aria-label="Cerrar selector" onClick={() => setOpen(false)}><X size={17}/></button></div>
       <div>{departments.map((item) => <button type="button" role="option" aria-selected={item.id === value} key={item.id} className={item.id === value ? 'active' : ''} onClick={() => chooseDepartment(item.id)}><span>{item.nombre}</span><small>{item.total_eess} estaciones</small></button>)}</div>
-    </div></>}
+    </div>}
   </div>
 }
 

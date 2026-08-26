@@ -75,10 +75,17 @@ body{color:var(--text)}
 }
 
 /* Neutral selection states */
+.controls-card{position:relative;z-index:1200}
+.department-picker{z-index:2}
+.department-menu{z-index:1300}
+.department-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 3px 7px 9px}
+.department-menu-head strong{color:var(--sub);font-size:12px}
+.department-menu-close{width:34px;height:34px;display:grid;place-items:center;flex:none;border:1px solid var(--border);border-radius:7px;color:var(--text);background:var(--muted);cursor:pointer}
+.department-menu-close:hover{background:var(--surface);border-color:var(--border2)}
 button:focus-visible,input:focus-visible,select:focus-visible,[role=button]:focus-visible{outline-color:var(--border2)}
 .department-trigger:hover,.department-trigger.open,.select-wrap:focus-within,.search-field>div:focus-within{border-color:var(--faint);box-shadow:0 0 0 2px var(--muted)}
 .department-menu button:hover,.department-menu button.active,.department-menu button[aria-selected=true]{color:var(--text);background:var(--muted)}
 .station-card.active,.station-card[aria-selected=true]{background:var(--muted);box-shadow:inset 3px 0 var(--border2)}
 @media(max-width:700px){
-  .department-menu{max-height:min(420px,calc(100dvh - 150px));overflow-y:auto;overscroll-behavior:contain}
+  .department-menu{max-height:min(420px,calc(100dvh - 150px));overflow-y:auto;overscroll-behavior:contain;z-index:1300}
 }
