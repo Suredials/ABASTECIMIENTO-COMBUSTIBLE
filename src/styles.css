@@ -34,3 +34,11 @@ body{color:var(--text)}
 .header-actions button:active,.refresh-button:active,.map-locate:active,.queue-row button:active,.map-popup button:active,.modal-close:active{background:var(--border);transform:translateY(1px)}
 .location-button,.theme-button{color:var(--text)!important}
 @media(max-width:700px){.header-actions .location-button{color:transparent!important}.header-actions .location-button svg{color:var(--text)}}
+
+/* Neutral modal and controls */
+.modal-backdrop{background:rgb(0 0 0 / 62%)}
+.modal-icon{color:var(--text);background:var(--muted);border:1px solid var(--border2)}
+.eyebrow{color:var(--sub)}
+.refresh-button,.map-locate,.theme-button,.prices-button,.location-button,.modal-close{background:var(--muted)!important;color:var(--text)!important;border-color:var(--border2)!important}
+.refresh-button:hover,.map-locate:hover,.theme-button:hover,.prices-button:hover,.location-button:hover,.modal-close:hover{background:var(--surface)!important;color:var(--text)!important;border-color:var(--faint)!important}
+@media(max-width:700px){.header-actions .location-button{color:transparent!important}.header-actions .location-button svg{color:var(--text)!important}}
