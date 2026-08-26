@@ -89,13 +89,29 @@ function MapViewport({ department, city }: { department?: Department; city?: Cit
 function DepartmentPicker({ departments, value, onChange }: { departments: Department[]; value: number | ''; onChange: (id: number) => void }) {
   const [open, setOpen] = useState(false)
   const active = departments.find((item) => item.id === value)
+
+  useEffect(() => setOpen(false), [value])
+  useEffect(() => {
+    if (!open) return
+    const closeWithEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', closeWithEscape)
+    return () => window.removeEventListener('keydown', closeWithEscape)
+  }, [open])
+
+  const chooseDepartment = (id: number) => {
+    setOpen(false)
+    onChange(id)
+  }
+
   return <div className="department-picker">
-    <button type="button" className={`department-trigger ${open ? 'open' : ''}`} onClick={() => setOpen(!open)} aria-expanded={open}>
+    <button type="button" className={`department-trigger ${open ? 'open' : ''}`} onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="listbox">
       <MapPin size={18}/><span>{active?.nombre || 'Elige un departamento'}</span><ChevronDown size={16}/>
     </button>
-    {open && <><button className="picker-dismiss" aria-label="Cerrar selector" onClick={() => setOpen(false)}/><div className="department-menu">
+    {open && <><button type="button" className="picker-dismiss" aria-label="Cerrar selector" onPointerDown={() => setOpen(false)}/><div className="department-menu" role="listbox">
       <strong>Selecciona un departamento</strong>
-      <div>{departments.map((item) => <button type="button" key={item.id} className={item.id === value ? 'active' : ''} onClick={() => { onChange(item.id); setOpen(false) }}><span>{item.nombre}</span><small>{item.total_eess} estaciones</small></button>)}</div>
+      <div>{departments.map((item) => <button type="button" role="option" aria-selected={item.id === value} key={item.id} className={item.id === value ? 'active' : ''} onClick={() => chooseDepartment(item.id)}><span>{item.nombre}</span><small>{item.total_eess} estaciones</small></button>)}</div>
     </div></>}
   </div>
 }

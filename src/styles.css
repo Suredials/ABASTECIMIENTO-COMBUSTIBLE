@@ -73,3 +73,12 @@ body{color:var(--text)}
   .search-field>div{padding-right:52px}
   .refresh-button{position:absolute;right:13px;bottom:13px;width:40px;height:40px}
 }
+
+/* Neutral selection states */
+button:focus-visible,input:focus-visible,select:focus-visible,[role=button]:focus-visible{outline-color:var(--border2)}
+.department-trigger:hover,.department-trigger.open,.select-wrap:focus-within,.search-field>div:focus-within{border-color:var(--faint);box-shadow:0 0 0 2px var(--muted)}
+.department-menu button:hover,.department-menu button.active,.department-menu button[aria-selected=true]{color:var(--text);background:var(--muted)}
+.station-card.active,.station-card[aria-selected=true]{background:var(--muted);box-shadow:inset 3px 0 var(--border2)}
+@media(max-width:700px){
+  .department-menu{max-height:min(420px,calc(100dvh - 150px));overflow-y:auto;overscroll-behavior:contain}
+}
