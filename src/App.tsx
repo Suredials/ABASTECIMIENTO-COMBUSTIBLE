@@ -359,7 +359,6 @@ export default function App() {
             <StationMap theme={theme} stations={visibleStations} selectedId={selectedId} department={activeDepartment} city={activeCity} focusStation={focusStation} position={position} onSelect={selectMapStation}/>
             <button className="map-locate" onClick={locate} aria-label="Centrar en mi ubicación"><Crosshair size={20}/></button>
             <div className="map-note"><span className="pulse"/>Datos ANH · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></div>
-            <a className="author-credit" href="https://github.com/Suredials" target="_blank" rel="noreferrer">Con cariño, Jaider · Suredials</a>
           </div>
         </section>
       </main>
