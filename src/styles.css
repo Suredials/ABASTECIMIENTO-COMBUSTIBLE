@@ -21,8 +21,8 @@ body{color:var(--text)}
 .panel-heading h2,.station-card h3,.empty-state h3,.report-modal h2,.prices-modal h2{color:var(--text)}
 .leaflet-control-zoom a,.leaflet-control-attribution{background:var(--surface)!important;color:var(--text)!important}
 .leaflet-control-attribution a{color:var(--blue)!important}
-[data-theme=light] .leaflet-tile-pane{filter:grayscale(.42) saturate(.55) brightness(.88) contrast(.94)}
-[data-theme=dark] .leaflet-tile-pane{filter:invert(.9) hue-rotate(180deg) grayscale(.48) saturate(.5) brightness(.62) contrast(1.12)}
+[data-theme=light] .leaflet-tile-pane{opacity:.5;filter:grayscale(1) saturate(0) brightness(.98) contrast(.6)}
+[data-theme=dark] .leaflet-tile-pane{opacity:.48;filter:invert(.9) hue-rotate(180deg) grayscale(1) saturate(0) brightness(.58) contrast(.72)}
 [data-theme=dark] .map{background:var(--bg)}
 [data-theme=dark] .leaflet-popup-content-wrapper,[data-theme=dark] .leaflet-popup-tip{background:var(--surface);color:var(--text)}
 [data-theme=dark] .leaflet-bar{border-color:var(--border)!important}
