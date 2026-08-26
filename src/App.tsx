@@ -118,7 +118,7 @@ function OptionPicker<T extends string | number>({ options, value, onChange, pla
     onChange(nextValue)
   }
 
-  return <div className="department-picker" ref={pickerRef}>
+  return <div className={`department-picker ${open ? 'picker-open' : ''}`} ref={pickerRef}>
     <button type="button" className={`department-trigger ${open ? 'open' : ''}`} onClick={() => !disabled && setOpen(!open)} aria-expanded={open} aria-haspopup="listbox" disabled={disabled}>
       {icon}<span>{active?.label || placeholder}</span><ChevronDown size={16}/>
     </button>

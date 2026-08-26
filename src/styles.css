@@ -76,7 +76,8 @@ body{color:var(--text)}
 
 /* Neutral selection states */
 .controls-card{position:relative;z-index:1200}
-.department-picker{z-index:2}
+.department-picker{z-index:auto}
+.department-picker.picker-open{z-index:10}
 .department-menu{z-index:1300}
 .department-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 3px 7px 9px}
 .department-menu-head strong{color:var(--sub);font-size:12px}
@@ -91,7 +92,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,[role=button]:focu
 }
 
 /* One picker system for every filter and viewport */
-.department-trigger:disabled{opacity:.56;cursor:not-allowed;background:var(--muted)}
+.department-trigger:disabled{opacity:1;cursor:not-allowed;color:var(--faint);background:var(--muted);border-color:var(--border)}
+.department-trigger:disabled span,.department-trigger:disabled svg{color:var(--faint)}
+.department-menu{isolation:isolate;opacity:1;background-color:var(--surface);background-image:none;backdrop-filter:none}
+.department-menu::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--surface)}
 .department-menu .department-menu-head{display:flex;grid-template-columns:none;align-items:center;justify-content:space-between}
 .department-menu .department-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
 .department-options button{min-height:48px}
