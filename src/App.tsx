@@ -79,7 +79,6 @@ function StationMap({ theme, stations, selectedId, department, city, focusStatio
       attributionControl: false,
     })
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left')
-    map.addControl(new maplibregl.AttributionControl({ compact: true }))
     mapRef.current = map
     const resizeObserver = new ResizeObserver(() => map.resize())
     resizeObserver.observe(containerRef.current)
@@ -325,6 +324,7 @@ export default function App() {
       <header className="topbar">
         <div className="live-pill"><span /> Información en vivo</div>
         <div className="update-indicator" title="Los datos se consultan automáticamente cada cinco minutos"><Clock3 size={14}/>{lastUpdated && nextUpdate ? <><span>Consultado <strong>{shortTime(lastUpdated)}</strong></span><i/><span>Siguiente <strong>{shortTime(nextUpdate)}</strong></span></> : <span>Actualiza cada <strong>5 min</strong></span>}</div>
+        <div className="mobile-status"><span className="pulse"/><strong>En vivo</strong><i/>{lastUpdated && nextUpdate ? <span>{shortTime(lastUpdated)} · {shortTime(nextUpdate)}</span> : <span>Cada 5 min</span>}</div>
         <div className="header-actions"><button className="theme-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'} title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>{theme === 'light' ? <Moon size={18}/> : <Sun size={18}/>}</button><button className="prices-button" onClick={() => setShowPrices(true)}><BadgeDollarSign size={18}/>Precios oficiales</button><button className="location-button" onClick={locate} disabled={locating}><LocateFixed size={18} />{locating ? 'Ubicando…' : position ? 'Ubicación activa' : 'Usar mi ubicación'}</button></div>
       </header>
 
@@ -358,7 +358,8 @@ export default function App() {
           <div className={`map-panel ${view === 'map' ? 'mobile-active' : ''}`}>
             <StationMap theme={theme} stations={visibleStations} selectedId={selectedId} department={activeDepartment} city={activeCity} focusStation={focusStation} position={position} onSelect={selectMapStation}/>
             <button className="map-locate" onClick={locate} aria-label="Centrar en mi ubicación"><Crosshair size={20}/></button>
-            <div className="map-note"><span className="pulse"/>Datos referenciales de ANH</div>
+            <div className="map-note"><span className="pulse"/>Datos ANH · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></div>
+            <a className="author-credit" href="https://github.com/Suredials" target="_blank" rel="noreferrer">Con cariño, Jaider · Suredials</a>
           </div>
         </section>
       </main>
