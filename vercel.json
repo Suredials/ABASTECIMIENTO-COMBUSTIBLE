@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/anh/:path*",
+      "destination": "https://vsr11vpr08m22gb.anh.gob.bo:9443/WSMobile/v2/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/anh/:path*",
+      "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
+    }
+  ]
+}

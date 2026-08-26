@@ -1,0 +1,12 @@
+node_modules/
+dist/
+analysis/
+core.*
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+*-preview.png
+.env
+.env.*
+.vercel/
+.DS_Store
