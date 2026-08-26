@@ -125,9 +125,15 @@ function StationMap({ theme, stations, selectedId, department, city, focusStatio
       const element = document.createElement('button')
       element.type = 'button'; element.className = 'station-marker-anchor'; element.dataset.stationId = String(station.id)
       element.setAttribute('aria-label', station.nombre); element.innerHTML = `<span class="station-marker ${station.saldo_estado}"><i></i></span>`
-      element.addEventListener('click', () => onSelect(station.id))
       const popupNode = document.createElement('div'); const root = createRoot(popupNode); root.render(<StationPopup station={station}/>); popupRoots.current.push(root)
       const popup = new maplibregl.Popup({ offset: 14, maxWidth: '290px' }).setDOMContent(popupNode)
+      element.addEventListener('click', () => {
+        const markerRect = element.getBoundingClientRect(); const mapRect = map.getContainer().getBoundingClientRect()
+        const horizontal = markerRect.left - mapRect.left > mapRect.width * .65 ? 'right' : markerRect.left - mapRect.left < mapRect.width * .35 ? 'left' : ''
+        const vertical = markerRect.top - mapRect.top > mapRect.height * .6 ? 'bottom' : markerRect.top - mapRect.top < mapRect.height * .35 ? 'top' : ''
+        popup.options.anchor = (vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'bottom') as maplibregl.PopupOptions['anchor']
+        onSelect(station.id)
+      })
       markerRefs.current.push(new maplibregl.Marker({ element }).setLngLat([station.lng, station.lat]).setPopup(popup).addTo(map))
     })
     return () => { markerRefs.current.forEach((marker) => marker.remove()); markerRefs.current = []; popupRoots.current.forEach((root) => root.unmount()); popupRoots.current = [] }
@@ -324,7 +330,7 @@ export default function App() {
       <header className="topbar">
         <div className="live-pill"><span /> Información en vivo</div>
         <div className="update-indicator" title="Los datos se consultan automáticamente cada cinco minutos"><Clock3 size={14}/>{lastUpdated && nextUpdate ? <><span>Consultado <strong>{shortTime(lastUpdated)}</strong></span><i/><span>Siguiente <strong>{shortTime(nextUpdate)}</strong></span></> : <span>Actualiza cada <strong>5 min</strong></span>}</div>
-        <div className="mobile-status"><span className="pulse"/><strong>En vivo</strong><i/>{lastUpdated && nextUpdate ? <span>{shortTime(lastUpdated)} · {shortTime(nextUpdate)}</span> : <span>Cada 5 min</span>}</div>
+        <div className="mobile-status"><span className="mobile-live"><span className="pulse"/>Información en vivo</span>{lastUpdated && nextUpdate ? <span className="mobile-times">{shortTime(lastUpdated)} · {shortTime(nextUpdate)}</span> : <span className="mobile-times">Cada 5 min</span>}</div>
         <div className="header-actions"><button className="theme-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'} title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>{theme === 'light' ? <Moon size={18}/> : <Sun size={18}/>}</button><button className="prices-button" onClick={() => setShowPrices(true)}><BadgeDollarSign size={18}/>Precios oficiales</button><button className="location-button" onClick={locate} disabled={locating}><LocateFixed size={18} />{locating ? 'Ubicando…' : position ? 'Ubicación activa' : 'Usar mi ubicación'}</button></div>
       </header>
 
