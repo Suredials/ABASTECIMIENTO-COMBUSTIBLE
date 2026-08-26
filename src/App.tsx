@@ -296,6 +296,7 @@ export default function App() {
   const activeDepartment = departments.find((item) => item.id === departmentId)
   const activeCity = CITIES.find((item) => item.id === cityId)
   const departmentCities = departmentId === '' ? [] : CITIES.filter((item) => item.departmentId === departmentId)
+  const cityStationCounts = new Map(departmentCities.map((city) => [city.id, stations.filter((station) => distanceKm([city.lat, city.lng], [station.lat, station.lng]) <= city.radiusKm).length]))
   const activeProduct = products.find((item) => item.id === productId)
   const nextUpdate = lastUpdated ? new Date(lastUpdated.getTime() + 5 * 60_000) : undefined
   const shortTime = (date: Date) => date.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' })
@@ -337,7 +338,7 @@ export default function App() {
       <main className="content">
         <section className="controls-card">
           <label><span>Departamento</span><OptionPicker options={departments.map((item) => ({ value:item.id, label:item.nombre, detail:`${item.total_eess} estaciones` }))} value={departmentId} placeholder="Elige un departamento" heading="Selecciona un departamento" icon={<MapPin size={18}/>} onChange={(id) => { setPosition(undefined); setCityId(''); setDepartmentId(id) }}/></label>
-          <label><span>Ciudad o municipio</span><OptionPicker options={[{ value:'', label:'Todo el departamento' }, ...departmentCities.map((city) => ({ value:city.id, label:city.name }))]} value={cityId} placeholder="Todo el departamento" heading="Selecciona una ciudad o municipio" icon={<MapPin size={18}/>} disabled={departmentId === ''} onChange={setCityId}/></label>
+          <label><span>Ciudad o municipio</span><OptionPicker options={[{ value:'', label:'Todo el departamento', detail:loading ? 'Actualizando…' : `${stations.length} estaciones` }, ...departmentCities.map((city) => ({ value:city.id, label:city.name, detail:loading ? 'Actualizando…' : `${cityStationCounts.get(city.id) || 0} estaciones` }))]} value={cityId} placeholder="Todo el departamento" heading="Selecciona una ciudad o municipio" icon={<MapPin size={18}/>} disabled={departmentId === ''} onChange={setCityId}/></label>
           <label><span>Combustible</span><OptionPicker options={products.map((item) => ({ value:item.id, label:item.producto }))} value={productId} placeholder="Elige un combustible" heading="Selecciona un combustible" icon={<Fuel size={18}/>} onChange={setProductId}/></label>
           <label className="search-field"><span>Buscar estación o zona</span><div><Search size={18}/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nombre, avenida, barrio…"/>{search && <button onClick={() => setSearch('')}><X size={15}/></button>}</div></label>
           <button className="refresh-button" aria-label="Actualizar" onClick={() => loadStations()}><RefreshCw size={19} className={loading ? 'spinning' : ''}/></button>
