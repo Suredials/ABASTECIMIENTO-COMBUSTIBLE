@@ -113,8 +113,8 @@ function StationMap({ theme, stations, selectedId, department, city, focusStatio
     popupRoots.current.forEach((root) => root.unmount()); popupRoots.current = []
     stations.forEach((station) => {
       const element = document.createElement('button')
-      element.type = 'button'; element.className = `station-marker ${station.saldo_estado}`; element.dataset.stationId = String(station.id)
-      element.setAttribute('aria-label', station.nombre); element.innerHTML = '<span></span>'
+      element.type = 'button'; element.className = 'station-marker-anchor'; element.dataset.stationId = String(station.id)
+      element.setAttribute('aria-label', station.nombre); element.innerHTML = `<span class="station-marker ${station.saldo_estado}"><i></i></span>`
       element.addEventListener('click', () => onSelect(station.id))
       const popupNode = document.createElement('div'); const root = createRoot(popupNode); root.render(<StationPopup station={station}/>); popupRoots.current.push(root)
       const popup = new maplibregl.Popup({ offset: 14, maxWidth: '290px' }).setDOMContent(popupNode)
@@ -123,7 +123,7 @@ function StationMap({ theme, stations, selectedId, department, city, focusStatio
     return () => { markerRefs.current.forEach((marker) => marker.remove()); markerRefs.current = []; popupRoots.current.forEach((root) => root.unmount()); popupRoots.current = [] }
   }, [stations, onSelect])
   useEffect(() => {
-    markerRefs.current.forEach((marker) => marker.getElement().classList.toggle('selected', marker.getElement().dataset.stationId === String(selectedId)))
+    markerRefs.current.forEach((marker) => marker.getElement().querySelector('.station-marker')?.classList.toggle('selected', marker.getElement().dataset.stationId === String(selectedId)))
   }, [selectedId, stations])
 
   return <div ref={containerRef} className="map"/>
