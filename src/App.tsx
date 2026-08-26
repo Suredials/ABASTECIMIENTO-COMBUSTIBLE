@@ -241,7 +241,7 @@ export default function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="live-pill"><span /> Información en vivo</div>
-        <div className="update-indicator"><Clock3 size={15}/>{lastUpdated && nextUpdate ? <><span>Última <strong>{shortTime(lastUpdated)}</strong></span><i/><span>Próxima <strong>{shortTime(nextUpdate)}</strong></span></> : <span>Actualización cada 5 min</span>}</div>
+        <div className="update-indicator" title="Los datos se consultan automáticamente cada cinco minutos"><Clock3 size={14}/>{lastUpdated && nextUpdate ? <><span>Consultado <strong>{shortTime(lastUpdated)}</strong></span><i/><span>Siguiente <strong>{shortTime(nextUpdate)}</strong></span></> : <span>Actualiza cada <strong>5 min</strong></span>}</div>
         <div className="header-actions"><button className="theme-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'} title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>{theme === 'light' ? <Moon size={18}/> : <Sun size={18}/>}</button><button className="prices-button" onClick={() => setShowPrices(true)}><BadgeDollarSign size={18}/>Precios oficiales</button><button className="location-button" onClick={locate} disabled={locating}><LocateFixed size={18} />{locating ? 'Ubicando…' : position ? 'Ubicación activa' : 'Usar mi ubicación'}</button></div>
       </header>
 
